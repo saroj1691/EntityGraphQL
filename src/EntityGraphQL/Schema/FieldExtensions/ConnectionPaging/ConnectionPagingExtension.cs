@@ -147,7 +147,10 @@ namespace EntityGraphQL.Schema.FieldExtensions
             field.UpdateExpression(fieldExpression);
         }
 
+        [Obsolete("Test")]
+#pragma warning disable CS0809 // Obsolete member overrides non-obsolete member
         public override Expression? GetExpression(IField field, Expression expression, ParameterExpression? argumentParam, dynamic? arguments, Expression context, IGraphQLNode? parentNode, bool servicesPass, ParameterReplacer parameterReplacer)
+#pragma warning restore CS0809 // Obsolete member overrides non-obsolete member
         {
             // second pass with services we have the new edges shape. We need to handle things on the EdgeExtension
             if (servicesPass)

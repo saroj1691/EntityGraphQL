@@ -94,7 +94,10 @@ public class OffsetPagingExtension : BaseFieldExtension
         return expression;
     }
 
+    [Obsolete("Test")]
+#pragma warning disable CS0809 // Obsolete member overrides non-obsolete member
     public override Expression? GetExpression(IField field, Expression expression, ParameterExpression? argumentParam, dynamic? arguments, Expression context, IGraphQLNode? parentNode, bool servicesPass, ParameterReplacer parameterReplacer)
+#pragma warning restore CS0809 // Obsolete member overrides non-obsolete member
     {
         if (servicesPass)
             return expression; // we don't need to do anything. items field is there to handle it now
@@ -110,11 +113,15 @@ public class OffsetPagingExtension : BaseFieldExtension
         // update the context
         foreach (var extension in Extensions)
         {
+#pragma warning disable CS8604 // Possible null reference argument.
             newItemsExp = extension.GetExpression(field, newItemsExp, argumentParam, arguments, context, parentNode, servicesPass, parameterReplacer);
+#pragma warning restore CS8604 // Possible null reference argument.
         }
 
         // Build our field expression and hold it for use in the next step
+#pragma warning disable CS8604 // Possible null reference argument.
         var fieldExpression = BuildTotalCountExpression(returnType!, newItemsExp, argumentParam);
+#pragma warning restore CS8604 // Possible null reference argument.
         return fieldExpression;
     }
 }

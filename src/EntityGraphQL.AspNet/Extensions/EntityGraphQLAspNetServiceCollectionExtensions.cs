@@ -55,8 +55,13 @@ namespace EntityGraphQL.AspNet
                 isDevelopment: webHostEnvironment?.IsEnvironment("Development") ?? true
             );
             options.PreBuildSchemaFromContext?.Invoke(schema);
+
             if (options.AutoBuildSchemaFromContext)
+            {
                 schema.PopulateFromContext(options);
+
+            }
+
             options.ConfigureSchema?.Invoke(schema);
             serviceCollection.AddSingleton(schema);
 

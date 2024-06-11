@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using Demo.Mutations;
 using EntityFrameworkCore.Projectables;
 using EntityGraphQL.Schema;
 using EntityGraphQL.Schema.FieldExtensions;
@@ -45,7 +46,12 @@ namespace demo
         };
     }
 
-    public class Movie
+    public abstract class BaseClass
+    {
+        public DateTime IsActive { get; set; }
+    }
+
+    public class Movie : BaseClass
     {
         public uint Id { get; set; }
         public string Name { get; set; }
@@ -55,6 +61,7 @@ namespace demo
         public virtual DateTime Released { get; set; }
         public virtual List<Actor> Actors { get; set; }
         public virtual List<Writer> Writers { get; set; }
+        //public virtual List<Writer> Movies { get; set; }
         public virtual Person Director { get; set; }
         public uint? DirectorId { get; set; }
         public double Rating { get; set; }
@@ -76,14 +83,14 @@ namespace demo
         }
     }
 
-    public class Actor
+    public class Actor : IMutation
     {
         public uint PersonId { get; set; }
         public virtual Person Person { get; set; }
         public uint MovieId { get; set; }
         public virtual Movie Movie { get; set; }
     }
-    public class Writer
+    public class Writer : IMutation
     {
         public uint PersonId { get; set; }
         public virtual Person Person { get; set; }
@@ -105,7 +112,7 @@ namespace demo
         Scifi,
     }
 
-    public class Person
+    public class Person : BaseClass
     {
         public uint Id { get; set; }
         [GraphQLNotNull]

@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using EntityGraphQL.Compiler;
 using EntityGraphQL.Compiler.Util;
 using EntityGraphQL.Extensions;
+using EntityGraphQL.Schema.Mutations;
 using Humanizer;
 using Microsoft.Extensions.Logging;
 using Nullability;
@@ -146,6 +147,20 @@ namespace EntityGraphQL.Schema
             var f = new Field(schema, schemaType, name, selectionExpression, $"Return a {fieldProp.ReturnType.SchemaType.Name} by its Id", argTypesValue, new GqlTypeInfo(fieldProp.ReturnType.SchemaTypeGetter, selectionExpression.Body.Type), fieldProp.RequiredAuthorization);
             options.OnFieldCreated?.Invoke(f);
             return f;
+        }
+
+        internal static void AddMutationsFromObject<TContextType>(SchemaProvider<TContextType> schema, SchemaBuilderOptions options)
+        {
+            var imutationType = typeof(IMutation);
+            var types = typeof(TContextType).Assembly
+                                .GetTypes()
+                                .Where(x => x.IsClass && !x.IsAbstract)
+                                .Where(x => imutationType.IsAssignableFrom(x));
+
+            foreach (Type type in types)
+            {
+                schema.AddDefaultMutationsFor(type, typeof(TContextType), options);
+            }
         }
 
         public static List<BaseField> GetFieldsFromObject(Type type, ISchemaType fromType, ISchemaProvider schema, SchemaBuilderOptions options, bool isInputType)

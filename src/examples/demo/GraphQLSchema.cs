@@ -4,6 +4,13 @@ using demo.Mutations;
 using EntityGraphQL.Schema;
 using EntityGraphQL.Extensions;
 using EntityGraphQL.Schema.FieldExtensions;
+using System.Net.Mime;
+using System.Linq.Expressions;
+using System;
+using Demo.Mutations;
+using Microsoft.Extensions.Options;
+using System.Data;
+using System.Reflection;
 
 namespace demo
 {
@@ -75,9 +82,35 @@ namespace demo
 
             // add some mutations 
             demoSchema.AddInputType<Detail>("Detail", "Detail item").AddAllFields();
-            demoSchema.Mutation().AddFrom<DemoMutations>();
-
+            demoSchema.AddInputType<Actor>("ActorDetail", "Actor Detail Item").AddAllFields();
+            demoSchema.AddInputType<Writer>("WriterDetail", "Writer Detail Item").AddAllFields();
+            demoSchema.AddInputType<Movie>("MovieDetail", "Movie Detail Item").AddAllFields();
+            demoSchema.AddInputType<Person>("PersonDetail", "Person Detail Item").AddAllFields();
+            //demoSchema.Mutation().AddFrom<DemoMutations>();
+            //demoSchema.AddMutationsFrom<PersonMutation>();
+            //demoSchema.AddMutationsFrom<MovieMutation>();
+            AddMutations(demoSchema);
             File.WriteAllText("schema.graphql", demoSchema.ToGraphQLSchemaString());
+        }
+
+        static void AddMutations(SchemaProvider<DemoContext> demoSchema)
+        {
+            var imutationType = typeof(IMutation);
+            var defaultMutationType = typeof(TestMutations);
+            var types = typeof(DemoContext).Assembly
+                                .GetTypes()
+                                .Where(x => x.IsClass && !x.IsAbstract)
+                                .Where(x => imutationType.IsAssignableFrom(x));
+
+            foreach (Type type in types)
+            {
+                foreach (var method in defaultMutationType.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly))
+                {
+                    var methodInfo = method.MakeGenericMethod(type, typeof(DemoContext));
+                    demoSchema.Mutation().Add($"{method.Name}{type.Name}", $"{method.Name}{type.Name}", methodInfo.ConvertToDelegate(null));
+
+                }
+            }
         }
     }
 }

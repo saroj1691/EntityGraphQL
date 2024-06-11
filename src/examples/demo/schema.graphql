@@ -9,6 +9,8 @@ scalar Boolean
 scalar Char
 """Date with time scalar"""
 scalar Date
+"""Date value only scalar"""
+scalar DateOnly
 """DateTimeOffset scalar"""
 scalar DateTimeOffset
 """Float scalar"""
@@ -21,6 +23,8 @@ scalar Int
 scalar String
 """Represents a pair of strings"""
 scalar StringKeyValuePair
+"""Time value only scalar"""
+scalar TimeOnly
 
 """Directs the executor to include this field or fragment only when the `if` argument is true."""
 directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
@@ -75,6 +79,14 @@ type Actor {
 	personId: Int!
 }
 
+"""Actor Detail Item"""
+input ActorDetail {
+	movie: MovieDetail
+	movieId: Int!
+	person: PersonDetail
+	personId: Int!
+}
+
 type ConnectionEdgePerson {
 	"""The cursor for this items position within the collection"""
 	cursor: String!
@@ -100,6 +112,7 @@ type Movie {
 	"""Enum of Genre"""
 	genre: Genre!
 	id: Int!
+	isActive: Date!
 	name: String
 	rating: Float!
 	released: Date!
@@ -115,6 +128,24 @@ type MovieConnection {
 	pageInfo: PageInfo!
 	"""Total count of items in the collection"""
 	totalCount: Int!
+}
+
+"""Movie Detail Item"""
+input MovieDetail {
+	actors: [ActorDetail!]
+	agesOfActorsAtRelease: [Int!]
+	createdBy: Int!
+	director: PersonDetail
+	directorAgeAtRelease: Int!
+	directorId: Int
+	"""Enum of Genre"""
+	genre: Genre!
+	id: Int!
+	isActive: Date!
+	name: String
+	rating: Float!
+	released: Date!
+	writers: [WriterDetail!]
 }
 
 """Metadata about an edge of page result"""
@@ -149,6 +180,7 @@ type Person {
 	filteredDirectorOf(filter: String): [Movie!]
 	firstName: String!
 	id: Int!
+	isActive: Date!
 	isDeleted: Boolean!
 	lastName: String!
 	"""Person's name"""
@@ -165,6 +197,20 @@ type PersonConnection {
 	pageInfo: PageInfo!
 	"""Total count of items in the collection"""
 	totalCount: Int!
+}
+
+"""Person Detail Item"""
+input PersonDetail {
+	actorIn: [ActorDetail!]
+	died: Date
+	directorOf: [MovieDetail!]
+	dob: Date!
+	firstName: String!
+	id: Int!
+	isActive: Date!
+	isDeleted: Boolean!
+	lastName: String!
+	writerOf: [WriterDetail!]
 }
 
 """Metadata about a Person page (paging over people)"""
@@ -187,6 +233,7 @@ input QueryDirectorsSortInput {
 	dob: SortDirectionEnum
 	firstName: SortDirectionEnum
 	id: SortDirectionEnum
+	isActive: SortDirectionEnum
 	isDeleted: SortDirectionEnum
 	lastName: SortDirectionEnum
 }
@@ -198,6 +245,7 @@ input QueryMoviesSortInput {
 	directorId: SortDirectionEnum
 	genre: SortDirectionEnum
 	id: SortDirectionEnum
+	isActive: SortDirectionEnum
 	name: SortDirectionEnum
 	rating: SortDirectionEnum
 	released: SortDirectionEnum
@@ -219,15 +267,22 @@ type Writer {
 	personId: Int!
 }
 
+"""Writer Detail Item"""
+input WriterDetail {
+	movie: MovieDetail
+	movieId: Int!
+	person: PersonDetail
+	personId: Int!
+}
+
 type Mutation {
-	addActor(firstName: String, lastName: String, movieId: Int!): Person
-	addActor2(firstName: String, lastName: String, movieId: Int!): [Person!]
-	addActor3(names: [String!], movieId: Int!): [Person!]
-	"""Add a new Movie object"""
-	addMovie(name: String!, rating: Float!, details: Detail, genre: Genre!, released: Date!): Movie
-	"""Example of a mutation that takes 0 arguments"""
-	exampleNoArgs: Movie
-	"""Example of a mutation that does not use the context or argments but does use registered services"""
-	exampleNoArgsWithService: Int!
+	"""AddNewActor"""
+	addNewActor(entity: ActorDetail): Actor
+	"""AddNewWriter"""
+	addNewWriter(entity: WriterDetail): Writer
+	"""UpdateActor"""
+	updateActor(id: Int!, entity: ActorDetail): Actor
+	"""UpdateWriter"""
+	updateWriter(id: Int!, entity: WriterDetail): Writer
 }
 

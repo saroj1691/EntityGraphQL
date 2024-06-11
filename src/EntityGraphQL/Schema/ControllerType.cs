@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using EntityGraphQL.Extensions;
+using EntityGraphQL.Schema.Mutations;
 using Nullability;
 
 namespace EntityGraphQL.Schema;
@@ -37,7 +38,7 @@ public abstract class ControllerType
         foreach (Type type in types)
         {
             var classLevelRequiredAuth = SchemaType.Schema.AuthorizationService.GetRequiredAuthFromType(type);
-            foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly))
+            foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.FlattenHierarchy))
             {
                 var attribute = method.GetCustomAttribute(typeof(GraphQLMethodAttribute)) as GraphQLMethodAttribute;
                 if (attribute != null || options.AddNonAttributedMethodsInControllers)
@@ -47,6 +48,26 @@ public abstract class ControllerType
                 }
             }
         }
+        return this;
+    }
+
+    public ControllerType AddDefaultMutationsFor(Type type, Type contextType, SchemaBuilderOptions? options = null)
+    {
+        options ??= new SchemaBuilderOptions();
+        var defaultMutationType = typeof(DefaultMutation);
+        var classLevelRequiredAuth = SchemaType.Schema.AuthorizationService.GetRequiredAuthFromType(type);
+
+        foreach (var method in defaultMutationType.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.FlattenHierarchy))
+        {
+            var attribute = method.GetCustomAttribute(typeof(GraphQLMethodAttribute)) as GraphQLMethodAttribute;
+            if (attribute != null || options.AddNonAttributedMethodsInControllers)
+            {
+                var methodInfo = method.MakeGenericMethod(type, contextType);
+                string name = $"{ SchemaType.Schema.SchemaFieldNamer(method.Name)}{type.Name}";
+                AddMethodAsField(name, classLevelRequiredAuth, methodInfo, attribute?.Description ?? "", options);
+            }
+        }
+
         return this;
     }
 

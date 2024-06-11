@@ -12,6 +12,7 @@ using System.Text.Json.Serialization;
 using System.Text.Json;
 using EntityGraphQL.Schema;
 using System.Linq.Expressions;
+using demo.Mutations;
 
 namespace demo
 {
@@ -65,6 +66,9 @@ namespace demo
                     // add in needed mappings for our context
                     schema.AddScalarType<KeyValuePair<string, string>>("StringKeyValuePair", "Represents a pair of strings");
                 };
+                //options.AutoBuildSchemaFromContext = true;
+                //options.AddMutationsFrom<PersonMutation>();
+                //options.AddMutationsFrom<MovieMutation>();
                 options.ConfigureSchema = GraphQLSchema.ConfigureSchema;
                 // below this will generate the field names as they are from the reflected dotnet types - i.e matching the case
                 // builder.FieldNamer = name => name;

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO.Pipes;
 using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
@@ -560,6 +561,11 @@ public class SchemaProvider<TContextType> : ISchemaProvider, IDisposable
         mutationType.AddFrom<TType>(options);
     }
 
+    public void AddDefaultMutationsFor(Type type, Type contextType, SchemaBuilderOptions? options = null)
+    {
+        mutationType.AddDefaultMutationsFor(type, contextType, options);
+    }
+
     /// <summary>
     /// Search for a GraphQL type with the given name. Lookup is only done by name.
     ///
@@ -978,6 +984,7 @@ public class SchemaProvider<TContextType> : ISchemaProvider, IDisposable
     {
         options ??= new SchemaBuilderOptions();
         SchemaBuilder.FromObject(this, options);
+        //SchemaBuilder.AddMutationsFromObject(this, options);
     }
 
     /// <summary>

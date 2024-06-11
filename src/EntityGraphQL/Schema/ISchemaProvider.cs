@@ -31,6 +31,7 @@ namespace EntityGraphQL.Schema
         SchemaType<TBaseType> AddInputType<TBaseType>(string name, string? description);
         ISchemaType AddInputType(Type type, string name, string? description);
         void AddMutationsFrom<TType>(SchemaBuilderOptions? options = null) where TType : class;
+        void AddDefaultMutationsFor(Type type, Type contextType, SchemaBuilderOptions? options = null);
         ISchemaType AddScalarType(Type clrType, string gqlTypeName, string? description);
         SchemaType<TType> AddScalarType<TType>(string gqlTypeName, string? description);
         SchemaType<TBaseType> AddType<TBaseType>(string name, string? description);
